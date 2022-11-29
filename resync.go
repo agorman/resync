@@ -197,6 +197,13 @@ func (re *Resync) sync(name string) error {
 	err = cmd.Run()
 	stat = stat.Finish(err)
 
+	if stat.Success {
+		log.Infof("Finished %s after %s", name, stat.Duration)
+	} else {
+		log.Errorf("Error %s: after %s: %s", stat.Duration, err)
+
+	}
+
 	if err != nil && re.config.Email != nil && BoolValue(re.config.Email.OnFailure) {
 		if err := re.mailer.Mail(stat); err != nil {
 			log.Error(err)
