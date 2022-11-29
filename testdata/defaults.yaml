@@ -1,0 +1,7 @@
+syncs:
+  media:
+    command: -a /asc/array1/Media/Test/docs /asc/array1/Media/Tests/docs_bk
+    schedule: "* * * * * *"
+  video:
+    command: -a --stats /asc/array1/VIDEO /asc/array1/VIDEO_BK
+    schedule: "0 0 * * * *"

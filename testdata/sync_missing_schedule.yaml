@@ -1,0 +1,3 @@
+syncs:
+  video:
+    schedule: "0 0 * * * *"

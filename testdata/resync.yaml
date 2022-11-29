@@ -1,0 +1,29 @@
+rsync_path: my_rsync
+log_path: /var/log/changed
+log_level: info
+lib_path: /var/lib/changed
+time_format: 2006-01-02T15:04:05Z07:00
+retention: 10
+seconds_field: true
+time_limit: 5h
+email:
+  host: smtp.me.com
+  port: 25
+  user: me
+  pass: pass
+  starttls: true
+  ssl: true
+  from: "me@me.com"
+  to:
+    - they@me.com
+    - them@me.com
+  schedule: "0 0 0 * * *"
+  on_failure: true
+syncs:
+  media:
+    command: -a /asc/array1/Media/Test/docs /asc/array1/Media/Tests/docs_bk
+    schedule: "* * * * * *"
+  video:
+    command: -a --stats /asc/array1/VIDEO /asc/array1/VIDEO_BK
+    schedule: "0 0 * * * *"
+    time_limit: 1h
