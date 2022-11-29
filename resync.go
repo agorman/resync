@@ -2,6 +2,7 @@ package resync
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
@@ -217,8 +218,7 @@ func (re *Resync) sync(name string) error {
 // Dump prints all of the stats to STDOUT.
 func (re *Resync) Dump() error {
 	if IntValue(re.config.Retention) < 1 {
-		log.Errorf("Unable to print stats when retention is less than 1")
-		return nil
+		return errors.New("Unable to print stats when retention is less than 1")
 	}
 
 	stats, err := re.db.List()
