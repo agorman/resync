@@ -5,8 +5,10 @@
 
 # Resync
 
+Resync is a layer on top of rsync and cron that adds some helpful functionality.
 
 Resync aims to be a very simple replacement for people that are already familiar with Rsync and Cron. All you need to do is create the YAML file and you're ready to go.
+
 
 # Why Resync?
 
