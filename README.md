@@ -29,8 +29,8 @@ Rsync with Cron is a popular pattern. If that's working for you then you might n
 Instead of using the system crontab resync runs cron jobs internally using the same syntax. A YAML file is used to configure resync and define how and when rsync is run.
 
 
-1. Download the binary
-2. Create a YAML file
+1. Download the [latest release](https://github.com/agorman/resync/releases).
+2. Create a YAML configuration file
 3. Run it `resync -conf resync.yaml`
 
 
