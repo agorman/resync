@@ -49,6 +49,16 @@ func TestConfig(t *testing.T) {
 
 	_, err = config.GetSync("foo")
 	assert.Error(t, err)
+
+	dur, err := config.GetTimeLimit("media")
+	assert.Nil(t, err)
+	assert.Equal(t, dur, d)
+
+	d, err = time.ParseDuration("1h")
+	assert.Nil(t, err)
+	dur, err = config.GetTimeLimit("video")
+	assert.Nil(t, err)
+	assert.Equal(t, dur, d)
 }
 
 func TestDefaults(t *testing.T) {
@@ -79,5 +89,92 @@ func TestEmpty(t *testing.T) {
 
 func TestInvalid(t *testing.T) {
 	_, err := OpenConfig("./testdata/invalid.yaml")
+	assert.Error(t, err)
+}
+
+func TestLogLevel(t *testing.T) {
+	config := &Config{
+		Syncs: map[string]*Sync{
+			"test": {
+				Command:  String("/a/b/c /d/e/f"),
+				Schedule: String("* * * * * *"),
+			},
+		},
+	}
+
+	config.LogLevel = String("panic")
+	err := config.validate()
+	assert.Nil(t, err)
+
+	config.LogLevel = String("fatal")
+	err = config.validate()
+	assert.Nil(t, err)
+
+	config.LogLevel = String("trace")
+	err = config.validate()
+	assert.Nil(t, err)
+
+	config.LogLevel = String("debug")
+	err = config.validate()
+	assert.Nil(t, err)
+
+	config.LogLevel = String("warn")
+	err = config.validate()
+	assert.Nil(t, err)
+
+	config.LogLevel = String("info")
+	err = config.validate()
+	assert.Nil(t, err)
+
+	config.LogLevel = String("error")
+	err = config.validate()
+	assert.Nil(t, err)
+
+	config.LogLevel = String("bad")
+	err = config.validate()
+	assert.Error(t, err)
+}
+
+func TestEmail(t *testing.T) {
+	config := &Config{
+		Email: &Email{},
+		Syncs: map[string]*Sync{
+			"test": {
+				Command:  String("/a/b/c /d/e/f"),
+				Schedule: String("* * * * * *"),
+			},
+		},
+	}
+
+	err := config.validate()
+	assert.Error(t, err)
+
+	config.Email.Host = String("smtp.me.com")
+	err = config.validate()
+	assert.Error(t, err)
+
+	config.Email.From = String("me@me.com")
+	err = config.validate()
+	assert.Error(t, err)
+
+	config.Email.To = []string{"you@me.com"}
+	err = config.validate()
+	assert.Nil(t, err)
+
+	assert.Equal(t, StringValue(config.Email.Host), "smtp.me.com")
+	assert.Equal(t, IntValue(config.Email.Port), 25)
+	assert.Nil(t, config.Email.User)
+	assert.Nil(t, config.Email.Pass)
+	assert.Equal(t, BoolValue(config.Email.StartTLS), false)
+	assert.Equal(t, BoolValue(config.Email.SSL), false)
+	assert.Equal(t, StringValue(config.Email.From), "me@me.com")
+	assert.Contains(t, config.Email.To, "you@me.com")
+	assert.Len(t, config.Email.To, 1)
+	assert.Nil(t, config.Email.Schedule)
+	assert.Equal(t, BoolValue(config.Email.OnFailure), false)
+}
+
+func TestMissingConfig(t *testing.T) {
+	_, err := OpenConfig("./testdata/missing.yaml")
 	assert.Error(t, err)
 }
