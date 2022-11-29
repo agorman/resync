@@ -62,8 +62,8 @@ func (c *Config) GetSync(name string) (*Sync, error) {
 // GetTimeLimit returns the time limit for name if it exists. If it doesn't exist it then tries to return the
 // global time limit. If that also doesn't exist then this method returns an error.
 func (c *Config) GetTimeLimit(name string) (time.Duration, error) {
-	if sync, err := c.GetSync(name); err != nil {
-		if sync.TimeLimit == nil {
+	if sync, err := c.GetSync(name); err == nil {
+		if sync.TimeLimit != nil {
 			return sync.timeLimit, nil
 		}
 	}
