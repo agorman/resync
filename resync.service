@@ -1,0 +1,10 @@
+[Unit]
+Description=Resync
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/resync
+
+[Install]
+WantedBy=multi-user.target
