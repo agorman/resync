@@ -19,7 +19,7 @@ func TestResync(t *testing.T) {
 		Retention:    Int(0),
 		SecondsField: Bool(true),
 		Syncs: map[string]*Sync{
-			"test": &Sync{
+			"test": {
 				Command:  String(fmt.Sprintf("-a ./testdata/a/ %s", dir)),
 				Schedule: String("* * * * * *"),
 			},
