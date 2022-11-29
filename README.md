@@ -1,6 +1,6 @@
 [![Build Status](https://github.com/agorman/resync/workflows/resync/badge.svg)](https://github.com/agorman/resync/actions)
 [![go report card](https://goreportcard.com/badge/github.com/agorman/resync "go report card")](https://goreportcard.com/report/github.com/agorman/resync)
-[![GoDoc](https://godoc.org/github.com/agorman/resync/v2?status.svg)](https://godoc.org/github.com/agorman/resync/v2)
+[![GoDoc](https://godoc.org/github.com/agorman/resync?status.svg)](https://godoc.org/github.com/agorman/resync)
 [![codecov](https://codecov.io/gh/agorman/resync/branch/master/graph/badge.svg)](https://codecov.io/gh/agorman/resync)
 
 # Resync
