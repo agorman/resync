@@ -178,7 +178,7 @@ func TestEmail(t *testing.T) {
 	assert.Contains(t, config.Email.To, "you@me.com")
 	assert.Equal(t, StringValue(config.Email.HistorySubject), "Resync History")
 	assert.Len(t, config.Email.To, 1)
-	assert.Nil(t, config.Email.Schedule)
+	assert.Nil(t, config.Email.HistorySchedule)
 	assert.Equal(t, BoolValue(config.Email.OnFailure), false)
 }
 

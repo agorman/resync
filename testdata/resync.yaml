@@ -19,7 +19,7 @@ email:
     - they@me.com
     - them@me.com
   history_subject: "Resync History"
-  schedule: "0 0 0 * * *"
+  history_schedule: "0 0 0 * * *"
   on_failure: true
 syncs:
   media:

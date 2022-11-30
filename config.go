@@ -253,8 +253,8 @@ type Email struct {
 	// HistorySubject is an optional subject to use when sending sync history emails.
 	HistorySubject *string `yaml:"history_subject"`
 
-	// Schedule is a cron expression. If set then an email with sync history will be sent based on the schedule.
-	Schedule *string `yaml:"schedule"`
+	// HistorySchedule is a cron expression. If set then an email with sync history will be sent based on the schedule.
+	HistorySchedule *string `yaml:"history_schedule"`
 
 	// OnFailure will send an email for each sync failure if true.
 	OnFailure *bool `yaml:"on_failure"`

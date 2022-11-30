@@ -76,7 +76,7 @@ email:
     - user1@myserver.com
     - user2@myserver.com
   history_subject: Resync History
-  schedule: "* * * * * *"
+  history_schedule: "* * * * * *"
   on_failure: false
 syncs:
   data:
@@ -149,7 +149,7 @@ syncs:
 
 ### insecure_skip_verify
 
-   When using TLS skip verifying the server's certificate chain and host name.
+    When using TLS skip verifying the server's certificate chain and host name.
 
 ### ssl
 
@@ -165,9 +165,9 @@ syncs:
 
 ### history_email
 
-    Ooptional subject to use when sending sync history emails.
+    Optional subject to use when sending sync history emails.
 
-### schedule
+### history_schedule
 
 	Defines a cron expression used to send scheduled reports. If set then an email with sync history will be sent based on the schedule.
 

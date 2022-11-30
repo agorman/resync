@@ -87,8 +87,8 @@ func (re *Resync) Start() error {
 	}
 
 	// setup scheduled stats email
-	if re.config.Email != nil && re.config.Email.Schedule != nil {
-		_, err := re.crontab.AddFunc(StringValue(re.config.Email.Schedule), func() {
+	if re.config.Email != nil && re.config.Email.HistorySchedule != nil {
+		_, err := re.crontab.AddFunc(StringValue(re.config.Email.HistorySchedule), func() {
 			if err := re.mailer.MailStats(); err != nil {
 				log.Error(err)
 			}
@@ -97,7 +97,7 @@ func (re *Resync) Start() error {
 			return err
 		}
 
-		log.Infof("History Email Scheduled: %s", StringValue(re.config.Email.Schedule))
+		log.Infof("History Email Scheduled: %s", StringValue(re.config.Email.HistorySchedule))
 	}
 
 	re.running = true
