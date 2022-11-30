@@ -83,7 +83,7 @@ func (re *Resync) Start() error {
 			return err
 		}
 
-		log.Infof("Sync started %s: %s", name, StringValue(sync.Schedule))
+		log.Infof("Sync Scheduled %s: %s", name, StringValue(sync.Schedule))
 	}
 
 	// setup scheduled stats email
@@ -97,7 +97,7 @@ func (re *Resync) Start() error {
 			return err
 		}
 
-		log.Infof("Emailing sync history: %s", StringValue(re.config.Email.Schedule))
+		log.Infof("History Email Scheduled: %s", StringValue(re.config.Email.Schedule))
 	}
 
 	re.running = true
