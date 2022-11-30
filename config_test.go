@@ -28,10 +28,12 @@ func TestConfig(t *testing.T) {
 	assert.Equal(t, StringValue(config.Email.User), "me")
 	assert.Equal(t, StringValue(config.Email.Pass), "pass")
 	assert.Equal(t, BoolValue(config.Email.StartTLS), true)
+	assert.Equal(t, BoolValue(config.Email.InsecureSkipVerify), false)
 	assert.Equal(t, BoolValue(config.Email.SSL), false)
 	assert.Equal(t, StringValue(config.Email.From), "me@me.com")
 	assert.Contains(t, config.Email.To, "they@me.com")
 	assert.Contains(t, config.Email.To, "them@me.com")
+	assert.Equal(t, StringValue(config.Email.HistorySubject), "Resync History")
 
 	assert.Len(t, config.Syncs, 2)
 
@@ -153,6 +155,10 @@ func TestEmail(t *testing.T) {
 	err = config.validate()
 	assert.Error(t, err)
 
+	config.Email.InsecureSkipVerify = Bool(true)
+	err = config.validate()
+	assert.Error(t, err)
+
 	config.Email.From = String("me@me.com")
 	err = config.validate()
 	assert.Error(t, err)
@@ -166,9 +172,11 @@ func TestEmail(t *testing.T) {
 	assert.Nil(t, config.Email.User)
 	assert.Nil(t, config.Email.Pass)
 	assert.Equal(t, BoolValue(config.Email.StartTLS), false)
+	assert.Equal(t, BoolValue(config.Email.InsecureSkipVerify), true)
 	assert.Equal(t, BoolValue(config.Email.SSL), false)
 	assert.Equal(t, StringValue(config.Email.From), "me@me.com")
 	assert.Contains(t, config.Email.To, "you@me.com")
+	assert.Equal(t, StringValue(config.Email.HistorySubject), "Resync History")
 	assert.Len(t, config.Email.To, 1)
 	assert.Nil(t, config.Email.Schedule)
 	assert.Equal(t, BoolValue(config.Email.OnFailure), false)

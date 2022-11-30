@@ -69,11 +69,13 @@ email:
   user: myuser
   pass: mypass
   starttls: true
+  insecure_skip_verify: false
   ssl: false
   from: me@myserver.com
   to:
     - user1@myserver.com
     - user2@myserver.com
+  history_subject: Resync History
   schedule: "* * * * * *"
   on_failure: false
 syncs:
@@ -142,7 +144,12 @@ syncs:
     The password used to authenticate.
 
 ### start_tls
+
     StartTLS enables TLS security. If both StartTLS and SSL are true then StartTLS will be used.
+
+### insecure_skip_verify
+
+   When using TLS skip verifying the server's certificate chain and host name.
 
 ### ssl
 
@@ -155,6 +162,10 @@ syncs:
 ### to
 
 	An array of email addresses for which emails will be sent.
+
+### history_email
+
+    Ooptional subject to use when sending sync history emails.
 
 ### schedule
 

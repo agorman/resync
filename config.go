@@ -151,6 +151,10 @@ func (c *Config) validate() error {
 			c.Email.StartTLS = Bool(false)
 		}
 
+		if c.Email.InsecureSkipVerify == nil {
+			c.Email.InsecureSkipVerify = Bool(false)
+		}
+
 		if c.Email.SSL == nil {
 			c.Email.SSL = Bool(false)
 		}
@@ -166,6 +170,10 @@ func (c *Config) validate() error {
 
 		if len(c.Email.To) == 0 {
 			return errors.New("Missing to entry for smtp")
+		}
+
+		if c.Email.HistorySubject == nil {
+			c.Email.HistorySubject = String("Resync History")
 		}
 
 		if c.Email.OnFailure == nil {
@@ -230,6 +238,9 @@ type Email struct {
 	// StartTLS enables TLS security. If both StartTLS and SSL are true then StartTLS will be used.
 	StartTLS *bool `yaml:"starttls"`
 
+	// Skip verifying the server's certificate chain and host name.
+	InsecureSkipVerify *bool `yaml:"insecure_skip_verify"`
+
 	// SSL enables SSL security. If both StartTLS and SSL are true then StartTLS will be used.
 	SSL *bool `yaml:"ssl"`
 
@@ -238,6 +249,9 @@ type Email struct {
 
 	// To is an array of email addresses for which emails will be sent.
 	To []string `yaml:"to"`
+
+	// HistorySubject is an optional subject to use when sending sync history emails.
+	HistorySubject *string `yaml:"history_subject"`
 
 	// Schedule is a cron expression. If set then an email with sync history will be sent based on the schedule.
 	Schedule *string `yaml:"schedule"`

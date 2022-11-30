@@ -3,6 +3,7 @@ package resync
 import (
 	"bytes"
 	"crypto/tls"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -52,21 +53,21 @@ func (m *Mailer) Mail(stat Stat) error {
 	message.Attach("stdout.log", gomail.SetCopyFunc(func(w io.Writer) error {
 		stdout, err := m.logger.Stdout(stat.Name)
 		if err != nil {
-			return err
+			return fmt.Errorf("Mailer: failed to read stdout log: %w", err)
 		}
 
 		_, err = io.Copy(w, stdout)
-		return err
+		return fmt.Errorf("Mailer: failed to attach stderr log: %w", err)
 	}))
 
 	message.Attach("stderr.log", gomail.SetCopyFunc(func(w io.Writer) error {
 		stderr, err := m.logger.Stderr(stat.Name)
 		if err != nil {
-			return err
+			return fmt.Errorf("Mailer: failed to read stderr log: %w", err)
 		}
 
 		_, err = io.Copy(w, stderr)
-		return err
+		return fmt.Errorf("Mailer: failed to attach stderr log: %w", err)
 	}))
 
 	return m.send(message)
@@ -81,22 +82,26 @@ func (m *Mailer) MailStats() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
+	stats, err := m.db.List()
+	if err != nil {
+		return fmt.Errorf("Mailer: failed to get list from stats db: %w", err)
+	}
+
+	if len(stats) == 0 {
+		return errors.New("Mailer: no stats found when trying to send stats email")
+	}
+
 	message := gomail.NewMessage()
 	message.SetHeader("From", StringValue(m.config.Email.From))
 	message.SetHeader("To", m.config.Email.To...)
-	message.SetHeader("Subject", "Resync: Statistics")
+	message.SetHeader("Subject", StringValue(m.config.Email.HistorySubject))
 
 	zipFile, err := m.logger.Zip()
 	if err != nil {
-		return err
+		return fmt.Errorf("Mailer: failed to get zip from logger: %w", err)
 	}
 	defer os.Remove(zipFile.Name())
 	message.Attach(zipFile.Name())
-
-	stats, err := m.db.List()
-	if err != nil {
-		return err
-	}
 
 	formatted := make(map[string][]Stat)
 
@@ -107,12 +112,12 @@ func (m *Mailer) MailStats() error {
 	tmpl := template.New("history")
 	emailTmpl, err := tmpl.Parse(emailTemplate)
 	if err != nil {
-		return err
+		return fmt.Errorf("Mailer: failed to parse email template: %w", err)
 	}
 
 	var tpl bytes.Buffer
 	if err := emailTmpl.Execute(&tpl, formatted); err != nil {
-		return err
+		return fmt.Errorf("Mailer: failed to execute email template: %w", err)
 	}
 
 	message.SetBody("text/html", tpl.String())
@@ -130,12 +135,17 @@ func (m *Mailer) send(message *gomail.Message) error {
 
 	if BoolValue(m.config.Email.StartTLS) {
 		dialer.TLSConfig = &tls.Config{
-			ServerName: StringValue(m.config.Email.Host),
+			ServerName:         StringValue(m.config.Email.Host),
+			InsecureSkipVerify: BoolValue(m.config.Email.InsecureSkipVerify),
 		}
 	}
 	dialer.SSL = BoolValue(m.config.Email.SSL)
 
-	return dialer.DialAndSend(message)
+	err := dialer.DialAndSend(message)
+	if err != nil {
+		return fmt.Errorf("Mailer: failed to send email: %w", err)
+	}
+	return nil
 }
 
 var emailTemplate = `<style type="text/css">
