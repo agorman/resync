@@ -31,13 +31,13 @@ func NewBoltDB(config *Config) (*BoltDB, error) {
 
 	if err := os.Mkdir(StringValue(config.LibPath), 0600); err != nil {
 		if !os.IsExist(err) {
-			return nil, fmt.Errorf("Failed to create resync lib directory: %w", err)
+			return nil, fmt.Errorf("BoltDB: Failed to create resync lib directory: %w", err)
 		}
 	}
 
 	db, err := bolt.Open(filepath.Join(StringValue(config.LibPath), "resync.db"), 0600, nil)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to open bolt database: %w", err)
+		return nil, fmt.Errorf("BoltDB: Failed to open bolt database: %w", err)
 	}
 
 	boltdb := &BoltDB{
@@ -62,24 +62,24 @@ func (s *BoltDB) Insert(stat Stat) error {
 	err := s.db.Update(func(tx *bolt.Tx) error {
 		b, err := tx.CreateBucketIfNotExists([]byte(stat.Name))
 		if err != nil {
-			return fmt.Errorf("create bucket: %s", err)
+			return fmt.Errorf("BoltDB: create bucket: %s", err)
 		}
 
 		// store stat in bolt JSON encoded
 		encoded, err := json.Marshal(stat)
 		if err != nil {
-			return err
+			return fmt.Errorf("BoltDB: marshal json: %s", err)
 		}
 
 		// store stat by sortable start time
 		if err := b.Put([]byte(stat.start.Format(time.RFC3339Nano)), encoded); err != nil {
-			return err
+			return fmt.Errorf("BoltDB: put: %s", err)
 		}
 
 		return nil
 	})
 	if err != nil {
-		return err
+		return fmt.Errorf("BoltDB: failed transaction: %s", err)
 	}
 
 	return s.prune()
@@ -108,7 +108,7 @@ func (s *BoltDB) prune() error {
 
 			for count > IntValue(s.config.Retention) {
 				if err := cursor.Delete(); err != nil {
-					return err
+					return fmt.Errorf("BoltDB: failed delete: %s", err)
 				}
 				cursor.Next()
 				count--
@@ -117,7 +117,10 @@ func (s *BoltDB) prune() error {
 		})
 		return nil
 	})
-	return err
+	if err != nil {
+		return fmt.Errorf("BoltDB: failed transaction: %s", err)
+	}
+	return nil
 }
 
 // List returns all stored Stats in a single slice.
@@ -147,5 +150,8 @@ func (s *BoltDB) List() ([]Stat, error) {
 		})
 		return nil
 	})
-	return stats, err
+	if err != nil {
+		return nil, fmt.Errorf("BoltDB: failed transaction: %s", err)
+	}
+	return stats, nil
 }

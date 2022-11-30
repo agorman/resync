@@ -39,7 +39,7 @@ func (l *FSLogger) Rotate(name string) (io.WriteCloser, io.WriteCloser, error) {
 
 	// create a directory under the log path with the same name as the sync
 	if err := os.MkdirAll(fmt.Sprintf("%s/%s", StringValue(l.config.LogPath), name), 0666); err != nil {
-		return nil, nil, err
+		return nil, nil, fmt.Errorf("FS Logger: failed to create log path: %w", err)
 	}
 
 	stdout := fmt.Sprintf("%s/%s/stdout.log", StringValue(l.config.LogPath), name)
@@ -52,7 +52,7 @@ func (l *FSLogger) Rotate(name string) (io.WriteCloser, io.WriteCloser, error) {
 
 	stdoutLog, err := os.Create(stdout)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, fmt.Errorf("FS Logger: failed to create stdout log: %w", err)
 	}
 
 	stderr := fmt.Sprintf("%s/%s/stderr.log", StringValue(l.config.LogPath), name)
@@ -65,7 +65,7 @@ func (l *FSLogger) Rotate(name string) (io.WriteCloser, io.WriteCloser, error) {
 
 	stderrLog, err := os.Create(stderr)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, fmt.Errorf("FS Logger: failed to create stderr log: %w", err)
 	}
 
 	return stdoutLog, stderrLog, nil
@@ -75,7 +75,7 @@ func (l *FSLogger) Rotate(name string) (io.WriteCloser, io.WriteCloser, error) {
 // while stdout is still open.
 func (l *FSLogger) Stdout(name string) (io.ReadCloser, error) {
 	if IntValue(l.config.Retention) < 1 {
-		return nil, errors.New("stdout log unavailable when retention is less than 1")
+		return nil, errors.New("FS Logger: stdout log unavailable when retention is less than 1")
 	}
 
 	l.mu.Lock()
@@ -83,18 +83,23 @@ func (l *FSLogger) Stdout(name string) (io.ReadCloser, error) {
 
 	logDir := filepath.Join(StringValue(l.config.LogPath), name)
 	if err := os.MkdirAll(logDir, 0644); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("FS Logger: failed to create stdout log path for sync %s: %w", name, err)
 	}
 
 	stdout := filepath.Join(logDir, "stdout.log")
-	return os.Open(stdout)
+
+	f, err := os.Open(stdout)
+	if err != nil {
+		return nil, fmt.Errorf("FS Logger: failed to create stdout log for sync %s: %w", name, err)
+	}
+	return f, nil
 }
 
 // Stderr returns the last STDERR from the rsync command. Expect errors Rotate is called
 // while stderr is still open.
 func (l *FSLogger) Stderr(name string) (io.ReadCloser, error) {
 	if IntValue(l.config.Retention) < 1 {
-		return nil, errors.New("stderr log unavailable when retention is less than 1")
+		return nil, errors.New("FS Logger: stderr log unavailable when retention is less than 1")
 	}
 
 	l.mu.Lock()
@@ -102,23 +107,28 @@ func (l *FSLogger) Stderr(name string) (io.ReadCloser, error) {
 
 	logDir := filepath.Join(StringValue(l.config.LogPath), name)
 	if err := os.MkdirAll(logDir, 0644); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("FS Logger: failed to create stderr log path for sync %s: %w", name, err)
 	}
 
 	stderr := filepath.Join(logDir, "stderr.log")
-	return os.Open(stderr)
+
+	f, err := os.Open(stderr)
+	if err != nil {
+		return nil, fmt.Errorf("FS Logger: failed to create stderr log for sync %s: %w", name, err)
+	}
+	return f, nil
 }
 
 // Zip returns file that contains all of the stored logs for all syncs. Expect errors Rotate is called
 // while the zip is being created.
 func (l *FSLogger) Zip() (*os.File, error) {
 	if IntValue(l.config.Retention) < 1 {
-		return nil, errors.New("zipping logs unavailable when retention is less than 1")
+		return nil, errors.New("FS Logger: zipping logs unavailable when retention is less than 1")
 	}
 
 	zipFile, err := os.CreateTemp("", "logs.*.zip")
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("FS Logger: failed to create temp file for zip: %w", err)
 	}
 
 	w := zip.NewWriter(zipFile)
@@ -156,5 +166,8 @@ func (l *FSLogger) Zip() (*os.File, error) {
 
 		return nil
 	})
-	return zipFile, err
+	if err != nil {
+		return nil, fmt.Errorf("FS Logger: failed create zip file: %w", err)
+	}
+	return zipFile, nil
 }

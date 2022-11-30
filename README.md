@@ -171,7 +171,6 @@ syncs:
 
 	Defines a cron expression used to send scheduled reports. If set then an email with sync history will be sent based on the schedule.
 
-
 ### on_failure
 
 	Send an email for each sync failure if true.
