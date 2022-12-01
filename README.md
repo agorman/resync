@@ -62,7 +62,7 @@ lib_path: /var/lib/resync
 time_format: Mon Jan 02 03:04:05 PM MST
 retention: 7
 seconds_field: false
-time_limit: 0
+time_limit: 5h
 email:
   host: smtp.myserver.com
   port: 587
