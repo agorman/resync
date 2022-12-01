@@ -25,7 +25,7 @@ type Resync struct {
 	config   *Config
 	db       DB
 	logger   Logger
-	mailer   *Mailer
+	notifier Notifier
 	crontab  *cron.Cron
 	syncs    map[string]*runningSync
 	running  bool
@@ -37,18 +37,18 @@ type Resync struct {
 }
 
 // New creates a new Resync object.
-func New(config *Config, db DB, logger Logger, mailer *Mailer) *Resync {
+func New(config *Config, db DB, logger Logger, notifier Notifier) *Resync {
 	return &Resync{
-		config:  config,
-		db:      db,
-		logger:  logger,
-		mailer:  mailer,
-		syncs:   make(map[string]*runningSync),
-		crontab: cron.New(),
-		startc:  make(chan *runningSync),
-		endc:    make(chan *runningSync),
-		stopc:   make(chan struct{}),
-		donec:   make(chan struct{}),
+		config:   config,
+		db:       db,
+		logger:   logger,
+		notifier: notifier,
+		syncs:    make(map[string]*runningSync),
+		crontab:  cron.New(),
+		startc:   make(chan *runningSync),
+		endc:     make(chan *runningSync),
+		stopc:    make(chan struct{}),
+		donec:    make(chan struct{}),
 	}
 }
 
@@ -89,7 +89,7 @@ func (re *Resync) Start() error {
 	// setup scheduled stats email
 	if re.config.Email != nil && re.config.Email.HistorySchedule != nil {
 		_, err := re.crontab.AddFunc(StringValue(re.config.Email.HistorySchedule), func() {
-			if err := re.mailer.MailStats(); err != nil {
+			if err := re.notifier.NotifyHistory(); err != nil {
 				log.Error(err)
 			}
 		})
@@ -209,7 +209,7 @@ func (re *Resync) sync(name string) error {
 	}
 
 	if err != nil && re.config.Email != nil && BoolValue(re.config.Email.OnFailure) {
-		if err := re.mailer.Mail(stat); err != nil {
+		if err := re.notifier.Notify(stat); err != nil {
 			log.Error(err)
 		}
 	}

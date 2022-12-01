@@ -13,17 +13,17 @@ import (
 	gomail "gopkg.in/gomail.v2"
 )
 
-// Mailer sends emails based on stats saved in the DB.
-type Mailer struct {
+// EmailNotifier sends emails based on stats saved in the DB.
+type EmailNotifier struct {
 	config *Config
 	db     DB
 	logger Logger
 	mu     sync.Mutex
 }
 
-// NewMailer creates a Mailer using config, db, and logger.
-func NewMailer(config *Config, db DB, logger Logger) *Mailer {
-	return &Mailer{
+// NewEmailNotifier creates a Mailer using config, db, and logger.
+func NewEmailNotifier(config *Config, db DB, logger Logger) *EmailNotifier {
+	return &EmailNotifier{
 		config: config,
 		db:     db,
 		logger: logger,
@@ -31,8 +31,8 @@ func NewMailer(config *Config, db DB, logger Logger) *Mailer {
 	}
 }
 
-// Mail sends a single email for the stat based on the configured email settings.
-func (m *Mailer) Mail(stat Stat) error {
+// Notify sends a single email for the stat based on the configured email settings.
+func (m *EmailNotifier) Notify(stat Stat) error {
 	if IntValue(m.config.Retention) < 1 || m.config.Email == nil {
 		return nil
 	}
@@ -73,8 +73,8 @@ func (m *Mailer) Mail(stat Stat) error {
 	return m.send(message)
 }
 
-// Mail sends status email for the stats in the db based on the configured email settings.
-func (m *Mailer) MailStats() error {
+// NotifyHistory sends status email for the stats in the db based on the configured email settings.
+func (m *EmailNotifier) NotifyHistory() error {
 	if IntValue(m.config.Retention) < 1 || m.config.Email == nil {
 		return nil
 	}
@@ -134,7 +134,7 @@ func (m *Mailer) MailStats() error {
 	return m.send(message)
 }
 
-func (m *Mailer) send(message *gomail.Message) error {
+func (m *EmailNotifier) send(message *gomail.Message) error {
 	dialer := gomail.NewDialer(
 		StringValue(m.config.Email.Host),
 		IntValue(m.config.Email.Port),

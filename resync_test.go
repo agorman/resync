@@ -34,10 +34,10 @@ func TestResync(t *testing.T) {
 
 	logger := NewFSLogger(config)
 
-	mailer := NewMailer(config, db, logger)
-	assert.NotNil(t, mailer)
+	notifer := NewEmailNotifier(config, db, logger)
+	assert.NotNil(t, notifer)
 
-	re := New(config, db, logger, mailer)
+	re := New(config, db, logger, notifer)
 	assert.NotNil(t, re)
 
 	// very basic tests
@@ -78,10 +78,10 @@ func TestStart(t *testing.T) {
 
 	logger := NewFSLogger(config)
 
-	mailer := NewMailer(config, db, logger)
-	assert.NotNil(t, mailer)
+	notifier := NewEmailNotifier(config, db, logger)
+	assert.NotNil(t, notifier)
 
-	re := New(config, db, logger, mailer)
+	re := New(config, db, logger, notifier)
 	assert.NotNil(t, re)
 
 	err = re.Start()

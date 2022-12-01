@@ -75,7 +75,7 @@ func build(path string, debug bool) *resync.Resync {
 
 	logger := resync.NewFSLogger(config)
 
-	mailer := resync.NewMailer(config, db, logger)
+	notifier := resync.NewEmailNotifier(config, db, logger)
 
-	return resync.New(config, db, logger, mailer)
+	return resync.New(config, db, logger, notifier)
 }

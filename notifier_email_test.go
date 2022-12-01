@@ -16,13 +16,13 @@ func TestMailer(t *testing.T) {
 
 	logger := NewFSLogger(config)
 
-	mailer := NewMailer(config, db, logger)
-	assert.NotNil(t, mailer)
+	emailNotifier := NewEmailNotifier(config, db, logger)
+	assert.NotNil(t, emailNotifier)
 
 	// Testing that mailing with retention = 0 is a noop
-	err = mailer.Mail(NewStat("TEST", "Mon Jan 02 03:04:05 PM MST"))
+	err = emailNotifier.Notify(NewStat("TEST", "Mon Jan 02 03:04:05 PM MST"))
 	assert.Nil(t, err)
 
-	err = mailer.MailStats()
+	err = emailNotifier.NotifyHistory()
 	assert.Nil(t, err)
 }
