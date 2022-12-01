@@ -159,21 +159,6 @@ func (re *Resync) sync(name string) error {
 		return err
 	}
 
-	// turn command into args list while preserving quotes
-	quoted := false
-	quotedArgs := strings.FieldsFunc(StringValue(sync.Command), func(r rune) bool {
-		if r == '"' {
-			quoted = !quoted
-		}
-		return !quoted && r == ' '
-	})
-
-	// removed the quotes from the args
-	var args []string
-	for _, arg := range quotedArgs {
-		args = append(args, strings.Trim(arg, `"`))
-	}
-
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
@@ -183,7 +168,7 @@ func (re *Resync) sync(name string) error {
 		defer timeoutCancel()
 	}
 
-	cmd := exec.CommandContext(ctx, StringValue(re.config.RsyncPath), args...)
+	cmd := exec.CommandContext(ctx, StringValue(re.config.RsyncPath), sync.Args()...)
 
 	// inform main loop that we're running a sync
 	rc := &runningSync{
@@ -208,7 +193,7 @@ func (re *Resync) sync(name string) error {
 	cmd.Stdout = stdoutLog
 	cmd.Stderr = stderrLog
 
-	log.Infof("Running %s: %s %s", name, StringValue(re.config.RsyncPath), strings.Join(args, " "))
+	log.Infof("Running %s: %s %s", name, StringValue(re.config.RsyncPath), strings.Join(sync.Args(), " "))
 
 	stat := NewStat(name, StringValue(re.config.TimeFormat))
 	err = cmd.Run()

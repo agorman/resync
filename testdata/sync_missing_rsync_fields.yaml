@@ -1,0 +1,6 @@
+syncs:
+  media:
+    rsync_args: -a
+    rsync_source:
+      - /files/MEDIA/ 
+    rsync_destination: /mnt/MEDIA_BK/

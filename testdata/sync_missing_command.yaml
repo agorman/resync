@@ -1,3 +1,0 @@
-syncs:
-  media:
-    command: -a /asc/array1/Media/Test/docs /asc/array1/Media/Tests/docs_bk

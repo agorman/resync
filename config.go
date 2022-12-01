@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"runtime"
+	"strings"
 	"time"
 
 	log "github.com/sirupsen/logrus"
@@ -186,10 +187,6 @@ func (c *Config) validate() error {
 	}
 
 	for name, sync := range c.Syncs {
-		if sync.Command == nil {
-			return fmt.Errorf("Missing command entry for sync: %s", name)
-		}
-
 		if sync.Schedule == nil {
 			return fmt.Errorf("Missing schedule entry for sync: %s", name)
 		}
@@ -201,6 +198,18 @@ func (c *Config) validate() error {
 				return err
 			}
 		}
+
+		if sync.RsyncArgs == nil {
+			return fmt.Errorf("Missing rsync_args entry for sync: %s", name)
+		}
+
+		if len(sync.RsyncSource) == 0 {
+			return fmt.Errorf("At least one rsync_source entry is required per sync: %s", name)
+		}
+
+		if sync.RsyncDestination == nil {
+			return fmt.Errorf("Missing rsync_destination entry for sync: %s", name)
+		}
 	}
 
 	return nil
@@ -208,9 +217,14 @@ func (c *Config) validate() error {
 
 // Sync defines a single rsync command, cron expression, and other related options.
 type Sync struct {
-	// Command is the rsync command that will be run. It should be idential to an rsync command on the command
-	// line with just the rsync command itself omitted.
-	Command *string `yaml:"command"`
+	// RsyncArgs are all of the arguments needed to run your rsync command
+	RsyncArgs *string `yaml:"rsync_args"`
+
+	// RsyncSource is the location of the rsync command's source
+	RsyncSource []string `yaml:"rsync_source"`
+
+	// RsyncDestination is the location of the rsync command's destination
+	RsyncDestination *string `yaml:"rsync_destination"`
 
 	// Schedule is the cron expresion for this sync.
 	Schedule *string `yaml:"schedule"`
@@ -219,6 +233,15 @@ type Sync struct {
 	// must be a string that can be passed to the time.Duration.ParseDuration() function.
 	TimeLimit *string `yaml:"time_limit"`
 	timeLimit time.Duration
+}
+
+// Args returns a list of args suitable for exec.Command.
+func (s *Sync) Args() []string {
+	args := make([]string, 0)
+	args = append(args, strings.Fields(StringValue(s.RsyncArgs))...)
+	args = append(args, s.RsyncSource...)
+	args = append(args, StringValue(s.RsyncDestination))
+	return args
 }
 
 // Email defines the SMTP configuration options needed when sending email notifications.

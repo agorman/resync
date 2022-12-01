@@ -35,19 +35,25 @@ func TestConfig(t *testing.T) {
 	assert.Contains(t, config.Email.To, "them@me.com")
 	assert.Equal(t, StringValue(config.Email.HistorySubject), "Resync History")
 
-	assert.Len(t, config.Syncs, 2)
+	assert.Len(t, config.Syncs, 3)
 
 	media, err := config.GetSync("media")
 	assert.Nil(t, err)
 
-	assert.Equal(t, StringValue(media.Command), "-a /asc/array1/Media/Test/docs /asc/array1/Media/Tests/docs_bk")
 	assert.Equal(t, StringValue(media.Schedule), "* * * * * *")
+	assert.ElementsMatch(t, media.Args(), []string{"-a", "/files/MEDIA/", "/mnt/MEDIA_BK/"})
 
 	video, err := config.GetSync("video")
 	assert.Nil(t, err)
 
-	assert.Equal(t, StringValue(video.Command), "-a --stats /asc/array1/VIDEO /asc/array1/VIDEO_BK")
 	assert.Equal(t, StringValue(video.Schedule), "0 0 * * * *")
+	assert.ElementsMatch(t, video.Args(), []string{"-a", "--stats", "/files/VIDEO/", "/mnt/VIDEO_BK/"})
+
+	audio, err := config.GetSync("audio")
+	assert.Nil(t, err)
+
+	assert.Equal(t, StringValue(audio.Schedule), "0 0 * * * *")
+	assert.ElementsMatch(t, audio.Args(), []string{"-a", "--stats", "/files/AUDIO1/", "/files/AUDIO2/", "/mnt/AUDIO_BK/"})
 
 	_, err = config.GetSync("foo")
 	assert.Error(t, err)
@@ -75,7 +81,7 @@ func TestDefaults(t *testing.T) {
 }
 
 func TestMissingCommand(t *testing.T) {
-	_, err := OpenConfig("./testdata/sync_missing_command.yaml")
+	_, err := OpenConfig("./testdata/sync_missing_rsync_fields.yaml")
 	assert.Error(t, err)
 }
 
@@ -98,8 +104,10 @@ func TestLogLevel(t *testing.T) {
 	config := &Config{
 		Syncs: map[string]*Sync{
 			"test": {
-				Command:  String("/a/b/c /d/e/f"),
-				Schedule: String("* * * * * *"),
+				RsyncArgs:        String("-a"),
+				RsyncSource:      []string{"/a/b/c"},
+				RsyncDestination: String("/d/e/f"),
+				Schedule:         String("* * * * * *"),
 			},
 		},
 	}
@@ -142,8 +150,10 @@ func TestEmail(t *testing.T) {
 		Email: &Email{},
 		Syncs: map[string]*Sync{
 			"test": {
-				Command:  String("/a/b/c /d/e/f"),
-				Schedule: String("* * * * * *"),
+				RsyncArgs:        String("-a"),
+				RsyncSource:      []string{"/a/b/c"},
+				RsyncDestination: String("/d/e/f"),
+				Schedule:         String("* * * * * *"),
 			},
 		},
 	}

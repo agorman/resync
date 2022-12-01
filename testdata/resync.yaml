@@ -23,9 +23,22 @@ email:
   on_failure: true
 syncs:
   media:
-    command: -a /asc/array1/Media/Test/docs /asc/array1/Media/Tests/docs_bk
+    rsync_args: -a
+    rsync_source:
+      - /files/MEDIA/ 
+    rsync_destination: /mnt/MEDIA_BK/
     schedule: "* * * * * *"
   video:
-    command: -a --stats /asc/array1/VIDEO /asc/array1/VIDEO_BK
+    rsync_args: -a --stats
+    rsync_source:
+      - /files/VIDEO/
+    rsync_destination: /mnt/VIDEO_BK/
     schedule: "0 0 * * * *"
     time_limit: 1h
+  audio:
+    rsync_args: -a --stats
+    rsync_source:
+      - /files/AUDIO1/
+      - /files/AUDIO2/
+    rsync_destination: /mnt/AUDIO_BK/
+    schedule: "0 0 * * * *"

@@ -47,7 +47,10 @@ Just define the syncs you'd like to perform and use the defaults.
 ~~~
 syncs:
   backup:
-    command: -a /home/user /mnt/backup
+    rsync_args: -a
+    rsync_source:
+      - /home/user/
+    rsync_destination: /mnt/backup/
     schedule: 0 0 * * *
 ~~~
 
@@ -81,10 +84,16 @@ email:
   on_failure: false
 syncs:
   data:
-    command: -a /data/ /mnt/backup/data/
+    rsync_args: -a
+    rsync_source:
+      - /data/
+    rsync_destination: /mnt/backup/data/
     schedule: "0 0 * * *"
   data2:
-    command: -a "/other data/" /mnt/backup/data2/
+    rsync_args: -a --stats
+    rsync_source:
+      - /other data/
+    rsync_destination: /mnt/backup/data2/
     schedule: "0 2 * * *"
 ~~~
 
@@ -137,10 +146,11 @@ syncs:
 
 ## Syncs
 
+**rsync_args** - The arguments used when calling rsync.
 
-**command** - The rsync command that will be run. It should be idential to an rsync command on the command line with just the rsync command itself omitted. _If a path contains any white space then the path must be quoted_.
+**rsync_source** - An array of source paths used when calling rsync.
 
-**schedule** -The cron expression that will be used. _It should be quoted_ as * have a special meaning in YAML files.
+**rsync_destination** -The desintation used when calling rsync.
 
 **time_limit** - The maximum amount of time that a sync job will run before being killed. TimeLimit must be a string that can be passed to the time.Duration.ParseDuration() function. Default is no time limit.
 

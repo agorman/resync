@@ -1,7 +1,13 @@
 syncs:
   media:
-    command: -a /asc/array1/Media/Test/docs /asc/array1/Media/Tests/docs_bk
-    schedule: "* * * * * *"
+    rsync_args: -a
+    rsync_source:
+      - /files/DOCS
+    rsync_destination: /mnt/DOCS_BK
+    schedule: "* * * * *"
   video:
-    command: -a --stats /asc/array1/VIDEO /asc/array1/VIDEO_BK
-    schedule: "0 0 * * * *"
+    rsync_args: -a --stats
+    rsync_source:
+      - /files/VIDEOS
+    rsync_destination: /mnt/VIDEOS_BK
+    schedule: "* * * * *"

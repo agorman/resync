@@ -1,7 +1,6 @@
 package resync
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
@@ -21,8 +20,10 @@ func TestResync(t *testing.T) {
 		TimeLimit:    String("5s"),
 		Syncs: map[string]*Sync{
 			"test": {
-				Command:  String(fmt.Sprintf("-a ./testdata/a/ %s", dir)),
-				Schedule: String("* * * * * *"),
+				RsyncArgs:        String("-a"),
+				RsyncSource:      []string{"./testdata/a/"},
+				RsyncDestination: String(dir),
+				Schedule:         String("* * * * * *"),
 			},
 		},
 	}
@@ -65,8 +66,10 @@ func TestStart(t *testing.T) {
 		LibPath: String(dir),
 		Syncs: map[string]*Sync{
 			"test": {
-				Command:  String(fmt.Sprintf("-a ./testdata/a/ %s", dir)),
-				Schedule: String("* * * * *"),
+				RsyncArgs:        String("-a"),
+				RsyncSource:      []string{"./testdata/a/"},
+				RsyncDestination: String(dir),
+				Schedule:         String("* * * * *"),
 			},
 		},
 	}
