@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
 	"sync"
 	"time"
 
@@ -123,7 +124,7 @@ func (s *BoltDB) prune() error {
 	return nil
 }
 
-// List returns all stored Stats in a single slice.
+// List returns all stored Stats in a single slice. The stats should be returned sorted by Start in descending order
 func (s *BoltDB) List() ([]Stat, error) {
 	stats := []Stat{}
 
@@ -153,5 +154,11 @@ func (s *BoltDB) List() ([]Stat, error) {
 	if err != nil {
 		return nil, fmt.Errorf("BoltDB: failed transaction: %s", err)
 	}
+
+	// return sorted by start desc
+	sort.Slice(stats, func(i, j int) bool {
+		return j < i
+	})
+
 	return stats, nil
 }
