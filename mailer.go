@@ -172,7 +172,6 @@ var emailTemplate = `<style type="text/css">
 			<td class="tg-0pky">End</td>
 			<td class="tg-0pky">Duration</td>
 		</tr>
-	</thead>
 		{{ range $stats}}
 		<tr>
 			<td class="tg-0pky">{{.Success}}</td>
@@ -183,4 +182,5 @@ var emailTemplate = `<style type="text/css">
 		{{ end}}
 	</tbody>
 </table>
+<br>
 {{ end }}`
