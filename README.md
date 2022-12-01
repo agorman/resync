@@ -76,7 +76,7 @@ email:
     - user1@myserver.com
     - user2@myserver.com
   history_subject: Resync History
-  history_schedule: "* * * * * *"
+  history_schedule: "* * * * *"
   on_failure: false
 syncs:
   data:
