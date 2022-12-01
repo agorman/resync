@@ -91,121 +91,66 @@ syncs:
 
 ## Global Options
 
+**rsync_path** - Path to the rsync binary. Defaults to rsync or rsync.exe on Windows.
 
-### rsync_path
+**log_path** - Directory on disk where resync logs will be stored. Defaults to /var/log/resync.
 
-    Path to the rsync binary. Defaults to rsync or rsync.exe on Windows.
+**log_level** - Sets the log level. Valid levels are: panic, fatal, trace, debug, warn, info, and error. Defaults to error.
 
-### log_path
+**lib_path** - Directory on disk where resync lib files will be stored. Defaults to /var/lib/resync.
 
-    Directory on disk where resync logs will be stored. Defaults to /var/log/resync.
+**time_format** - The time format used when displaying sync stats. See formatting options in the go time.Time package. Defaults to Mon Jan 02 03:04:05 PM MST
 
-### log_level
+**retention** - The number of logs and stats that are stored for each sync. Defaults to 7.
 
-    Sets the log level. Valid levels are: panic, fatal, trace, debug, warn, info, and error. Defaults to error.
+**seconds_field** - Enable the cron seconds field. This makes the first field in the cron expression handle seconds changes the expression to 6 fields. Defaults to false.
 
-### lib_path
-
-    Directory on disk where resync lib files will be stored. Defaults to /var/lib/resync.
-
-### time_format
-
-    The time format used when displaying sync stats. See formatting options in the go time.Time package. Defaults to Mon Jan 02 03:04:05 PM MST
-
-### retention
-
-    The number of logs and stats that are stored for each sync. Defaults to 7.
-
-### seconds_field
-
-    Enable the cron seconds field. This makes the first field in the cron expression handle seconds changes the expression to 6 fields. Defaults to false.
-
-### time_limit
-
-    The maximum amount of time that a sync job will run before being killed. TimeLimit must be a string that can be passed to the time.Duration.ParseDuration() function. Default is no time limit.
-
+**time_limit** - The maximum amount of time that a sync job will run before being killed. TimeLimit must be a string that can be passed to the time.Duration.ParseDuration() function. Default is no time limit.
 
 ## Email
 
+**host** - The hostname or IP of the SMTP server.
 
-### host
+**port** - The port of the SMTP server.
 
-    The hostname or IP of the SMTP server.
+**user** - The username used to authenticate.
 
-### port
+**pass** - The password used to authenticate.
 
-    The port of the SMTP server.
+**start_tls** - StartTLS enables TLS security. If both StartTLS and SSL are true then StartTLS will be used.
 
-### user
+**insecure_skip_verify** - When using TLS skip verifying the server's certificate chain and host name.
 
-    The username used to authenticate.
+**ssl** - SSL enables SSL security. If both StartTLS and SSL are true then StartTLS will be used.
 
-### pass
+**from** - The email address the email will be sent from.
 
-    The password used to authenticate.
+**to** - An array of email addresses for which emails will be sent.
 
-### start_tls
+**history_email** - Optional subject to use when sending sync history emails.
 
-    StartTLS enables TLS security. If both StartTLS and SSL are true then StartTLS will be used.
+**history_schedule** - Defines a cron expression used to send scheduled reports. If set then an email with sync history will be sent based on the schedule.
 
-### insecure_skip_verify
+**history_template** - Optional template to use when sending history emails. See go's html/template for details. Uses the default template if blank.
 
-    When using TLS skip verifying the server's certificate chain and host name.
-
-### ssl
-
-    SSL enables SSL security. If both StartTLS and SSL are true then StartTLS will be used.
-
-### from
-
-    The email address the email will be sent from.
-
-### to
-
-	An array of email addresses for which emails will be sent.
-
-### history_email
-
-    Optional subject to use when sending sync history emails.
-
-### history_schedule
-
-	Defines a cron expression used to send scheduled reports. If set then an email with sync history will be sent based on the schedule.
-
-### history_template
-
-    Optional template to use when sending history emails. See go's html/template for details. Uses the default template if blank.
-
-### on_failure
-
-	Send an email for each sync failure if true.
+**on_failure** - Send an email for each sync failure if true.
 
 ## Syncs
 
 
-### command
+**command** - The rsync command that will be run. It should be idential to an rsync command on the command line with just the rsync command itself omitted. _If a path contains any white space then the path must be quoted_.
 
-    The rsync command that will be run. It should be idential to an rsync command on the command line with just the rsync command itself omitted. If a path contains any white space then the path must be quoted.
+**schedule** -The cron expression that will be used. _It should be quoted_ as * have a special meaning in YAML files.
 
-### schedule
-
-    The cron expression that will be used. It should be quoted as * have a special meaning in YAML files.
-
-### time_limit
-
-    The maximum amount of time that a sync job will run before being killed. TimeLimit must be a string that can be passed to the time.Duration.ParseDuration() function. Default is no time limit.
+**time_limit** - The maximum amount of time that a sync job will run before being killed. TimeLimit must be a string that can be passed to the time.Duration.ParseDuration() function. Default is no time limit.
 
 
 # Flags
 
 
-## -conf
+**-conf** - Path to the resync configuration file
 
-    Path to the resync configuration file
-
-## -debug
-
-    Log to STDOUT
+**-debug** - Log to STDOUT
 
 
 ## Road Map
