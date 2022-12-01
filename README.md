@@ -215,4 +215,6 @@ syncs:
 - Systemd service file
 - Create rpm
 - Create deb
-- More persistence and logging layers
+- More persistence layers
+- More notifiers
+- More logggers
