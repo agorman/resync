@@ -256,6 +256,9 @@ type Email struct {
 	// HistorySchedule is a cron expression. If set then an email with sync history will be sent based on the schedule.
 	HistorySchedule *string `yaml:"history_schedule"`
 
+	// HistoryTemplate is an optional path to an email template to use when sending history emails. If not set uses the default template.
+	HistoryTemplate *string `yaml:"history_template"`
+
 	// OnFailure will send an email for each sync failure if true.
 	OnFailure *bool `yaml:"on_failure"`
 }

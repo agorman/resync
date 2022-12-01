@@ -110,9 +110,18 @@ func (m *Mailer) MailStats() error {
 	}
 
 	tmpl := template.New("history")
-	emailTmpl, err := tmpl.Parse(emailTemplate)
-	if err != nil {
-		return fmt.Errorf("Mailer: failed to parse email template: %w", err)
+
+	var emailTmpl *template.Template
+	if m.config.Email.HistoryTemplate != nil {
+		emailTmpl, err = tmpl.ParseFiles(StringValue(m.config.Email.HistoryTemplate))
+		if err != nil {
+			return fmt.Errorf("Mailer: failed to parse custom email template %s: %w", StringValue(m.config.Email.HistoryTemplate), err)
+		}
+	} else {
+		emailTmpl, err = tmpl.Parse(emailTemplate)
+		if err != nil {
+			return fmt.Errorf("Mailer: failed to parse email template: %w", err)
+		}
 	}
 
 	var tpl bytes.Buffer

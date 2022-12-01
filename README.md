@@ -77,6 +77,7 @@ email:
     - user2@myserver.com
   history_subject: Resync History
   history_schedule: "* * * * *"
+  history_template: "/etc/resync/resync.tmpl"
   on_failure: false
 syncs:
   data:
@@ -170,6 +171,10 @@ syncs:
 ### history_schedule
 
 	Defines a cron expression used to send scheduled reports. If set then an email with sync history will be sent based on the schedule.
+
+### history_template
+
+    Optional template to use when sending history emails. See go's html/template for details. Uses the default template if blank.
 
 ### on_failure
 
