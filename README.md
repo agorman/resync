@@ -84,7 +84,7 @@ syncs:
     command: -a /data/ /mnt/backup/data/
     schedule: "0 0 * * *"
   data2:
-    command: -a /data2/ /mnt/backup/data2/
+    command: -a "/other data/" /mnt/backup/data2/
     schedule: "0 2 * * *"
 ~~~
 
@@ -185,7 +185,7 @@ syncs:
 
 ### command
 
-    The rsync command that will be run. It should be idential to an rsync command on the command line with just the rsync command itself omitted.
+    The rsync command that will be run. It should be idential to an rsync command on the command line with just the rsync command itself omitted. If a path contains any white space then the path must be quoted.
 
 ### schedule
 

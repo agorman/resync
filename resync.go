@@ -159,7 +159,20 @@ func (re *Resync) sync(name string) error {
 		return err
 	}
 
-	args := strings.Fields(StringValue(sync.Command))
+	// turn command into args list while preserving quotes
+	quoted := false
+	quotedArgs := strings.FieldsFunc(StringValue(sync.Command), func(r rune) bool {
+		if r == '"' {
+			quoted = !quoted
+		}
+		return !quoted && r == ' '
+	})
+
+	// removed the quotes from the args
+	var args []string
+	for _, arg := range quotedArgs {
+		args = append(args, strings.Trim(arg, `"`))
+	}
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
