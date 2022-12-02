@@ -3,6 +3,7 @@ module github.com/agorman/resync
 go 1.19
 
 require (
+	github.com/etherlabsio/healthcheck/v2 v2.0.0
 	github.com/namsral/flag v1.7.4-pre
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/sirupsen/logrus v1.9.0

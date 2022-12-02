@@ -6,6 +6,9 @@ time_format: 2006-01-02T15:04:05Z07:00
 retention: 10
 seconds_field: true
 time_limit: 5h
+http:
+  addr: 0.0.0.0
+  port: 4070
 email:
   host: smtp.me.com
   port: 25

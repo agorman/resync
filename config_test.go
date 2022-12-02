@@ -22,6 +22,10 @@ func TestConfig(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, config.timeLimit, d)
 
+	assert.NotNil(t, config.HTTP)
+	assert.Equal(t, StringValue(config.HTTP.Addr), "0.0.0.0")
+	assert.Equal(t, IntValue(config.HTTP.Port), 4070)
+
 	assert.NotNil(t, config.Email)
 	assert.Equal(t, StringValue(config.Email.Host), "smtp.me.com")
 	assert.Equal(t, IntValue(config.Email.Port), 25)

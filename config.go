@@ -45,6 +45,7 @@ type Config struct {
 	// time limit.
 	TimeLimit *string `yaml:"time_limit"`
 
+	HTTP      *HTTP            `yaml:"http"`
 	Email     *Email           `yaml:"email"`
 	Syncs     map[string]*Sync `yaml:"syncs"`
 	timeLimit time.Duration
@@ -136,6 +137,16 @@ func (c *Config) validate() error {
 		c.timeLimit, err = time.ParseDuration(StringValue(c.TimeLimit))
 		if err != nil {
 			return err
+		}
+	}
+
+	if c.HTTP != nil {
+		if c.HTTP.Addr == nil {
+			c.HTTP.Addr = String("127.0.0.1")
+		}
+
+		if c.HTTP.Port == nil {
+			c.HTTP.Port = Int(4050)
 		}
 	}
 
@@ -242,6 +253,15 @@ func (s *Sync) Args() []string {
 	args = append(args, s.RsyncSource...)
 	args = append(args, StringValue(s.RsyncDestination))
 	return args
+}
+
+// HTTP defines the configuration for http health checks.
+type HTTP struct {
+	// The address the http server will listen on.
+	Addr *string `yaml:"addr"`
+
+	// The port the http server will listen on.
+	Port *int `yaml:"port"`
 }
 
 // Email defines the SMTP configuration options needed when sending email notifications.

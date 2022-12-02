@@ -1,13 +1,17 @@
 package main
 
 import (
+	"context"
 	"fmt"
+	"net/http"
 	"os"
 	"os/signal"
 	"path/filepath"
 	"syscall"
+	"time"
 
 	"github.com/agorman/resync"
+	"github.com/etherlabsio/healthcheck/v2"
 	"github.com/namsral/flag"
 	log "github.com/sirupsen/logrus"
 	lumberjack "gopkg.in/natefinch/lumberjack.v2"
@@ -19,7 +23,7 @@ func main() {
 	debug := flag.Bool("debug", false, "Log to STDOUT")
 	flag.Parse()
 
-	re := build(*conf, *debug)
+	re, config := build(*conf, *debug)
 
 	if *stats {
 		if err := re.Dump(); err != nil {
@@ -32,28 +36,52 @@ func main() {
 		log.Fatal(err)
 	}
 
+	errc := make(chan error, 1)
 	sigc := make(chan os.Signal, 1)
 	signal.Notify(sigc, syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
 
-	// Block until a signal is received.
-	for sig := range sigc {
-		switch sig {
-		case syscall.SIGHUP:
-			// restart rather then exit on SIGHUP
-			re.Stop()
-			re = build(*conf, *debug)
-			if err := re.Start(); err != nil {
-				log.Fatal(err)
+	if config.HTTP != nil {
+		http.Handle("/healthcheck", healthcheck.Handler(
+			healthcheck.WithTimeout(5*time.Second),
+			healthcheck.WithChecker(
+				"ready", healthcheck.CheckerFunc(
+					func(ctx context.Context) error {
+						return nil
+					},
+				),
+			),
+		))
+
+		go func() {
+			errc <- http.ListenAndServe(fmt.Sprintf("%s:%d", resync.StringValue(config.HTTP.Addr), resync.IntValue(config.HTTP.Port)), nil)
+		}()
+	}
+
+	for {
+		select {
+		case sig := <-sigc:
+			switch sig {
+			case syscall.SIGHUP:
+				// restart rather then exit on SIGHUP
+				re.Stop()
+				re, _ = build(*conf, *debug)
+				if err := re.Start(); err != nil {
+					log.Fatal(err)
+				}
+			default:
+				fmt.Printf("Got signal %s: stopping\n", sig)
+				re.Stop()
+				return
 			}
-		default:
-			fmt.Printf("Got signal %s: stopping\n", sig)
+		case err := <-errc:
+			log.Errorf("Run error: %s", err)
 			re.Stop()
 			return
 		}
 	}
 }
 
-func build(path string, debug bool) *resync.Resync {
+func build(path string, debug bool) (*resync.Resync, *resync.Config) {
 	config, err := resync.OpenConfig(path)
 	if err != nil {
 		log.Fatal(err)
@@ -77,5 +105,5 @@ func build(path string, debug bool) *resync.Resync {
 
 	notifier := resync.NewEmailNotifier(config, db, logger)
 
-	return resync.New(config, db, logger, notifier)
+	return resync.New(config, db, logger, notifier), config
 }

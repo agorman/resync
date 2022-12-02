@@ -20,7 +20,8 @@ Rsync with Cron is a popular pattern. If that's working for you then you might n
 - An optional maximum time on how long each rsync command is allowed to run
 - Stores and rotates logs from each rsync invocation
 - Provides historical data on each rsync invocation
-- Send email notifications for failures and reports
+- Send email notifications for failures and sync history
+- An optional HTTP server that provides health checks
 
 
 # How does it work?
@@ -66,6 +67,9 @@ time_format: Mon Jan 02 03:04:05 PM MST
 retention: 7
 seconds_field: false
 time_limit: 5h
+http:
+  addr: 127.0.0.1
+  port 4050
 email:
   host: smtp.myserver.com
   port: 587
@@ -115,6 +119,12 @@ syncs:
 **seconds_field** - Enable the cron seconds field. This makes the first field in the cron expression handle seconds changes the expression to 6 fields. Defaults to false.
 
 **time_limit** - The maximum amount of time that a sync job will run before being killed. TimeLimit must be a string that can be passed to the time.Duration.ParseDuration() function. Default is no time limit.
+
+## HTTP
+
+**addr** - The listening address used for the optional internal healthcheck http server. Defaults to 127.0.0.1.
+
+**port** - The listening port used for the optional internal healthcheck http server. Defaults to 4050.
 
 ## Email
 
