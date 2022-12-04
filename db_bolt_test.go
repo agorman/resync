@@ -56,11 +56,15 @@ func TestDB(t *testing.T) {
 
 	stats, err := db.List()
 	assert.Nil(t, err)
-	assert.Len(t, stats, 6)
+	assert.Len(t, stats, 2)
+	assert.Len(t, stats["TEST"], int(3))
+	assert.Len(t, stats["TEST2"], 3)
 
 	err = db.Prune()
 	assert.Nil(t, err)
-	assert.Len(t, stats, 6)
+	assert.Len(t, stats, 2)
+	assert.Len(t, stats["TEST"], int(3))
+	assert.Len(t, stats["TEST2"], 3)
 }
 
 func TestDBWithoutRetention(t *testing.T) {

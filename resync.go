@@ -235,15 +235,9 @@ func (re *Resync) Dump() error {
 		return err
 	}
 
-	smap := make(map[string][]Stat)
-
-	for _, stat := range stats {
-		smap[stat.Name] = append(smap[stat.Name], stat)
-	}
-
 	writer := tabwriter.NewWriter(os.Stdout, 0, 8, 1, '\t', tabwriter.AlignRight)
 
-	for _, stats := range smap {
+	for _, stats := range stats {
 		fmt.Fprintln(writer, "NAME\tSUCCESS\tSTART\tEND\tDURATION")
 		for _, stat := range stats {
 			fmt.Fprintf(writer, "%s\t%t\t%s\t%s\t%s\n", stat.Name, stat.Success, stat.Start, stat.End, stat.Duration)

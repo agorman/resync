@@ -103,12 +103,6 @@ func (m *EmailNotifier) NotifyHistory() error {
 	defer os.Remove(zipFile.Name())
 	message.Attach(zipFile.Name())
 
-	formatted := make(map[string][]Stat)
-
-	for _, stat := range stats {
-		formatted[stat.Name] = append(formatted[stat.Name], stat)
-	}
-
 	var emailTmpl *template.Template
 	if m.config.Email.HistoryTemplate != nil {
 		emailTmpl, err = template.ParseFiles(StringValue(m.config.Email.HistoryTemplate))
@@ -124,7 +118,7 @@ func (m *EmailNotifier) NotifyHistory() error {
 	}
 
 	var tpl bytes.Buffer
-	if err := emailTmpl.Execute(&tpl, formatted); err != nil {
+	if err := emailTmpl.Execute(&tpl, stats); err != nil {
 		return fmt.Errorf("Mailer: failed to execute email template: %w", err)
 	}
 

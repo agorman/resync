@@ -124,12 +124,13 @@ func (s *BoltDB) prune() error {
 	return nil
 }
 
-// List returns all stored Stats in a single slice. The stats should be returned sorted by Start in descending order
-func (s *BoltDB) List() ([]Stat, error) {
-	stats := []Stat{}
+// List returns all stats stored as a map. The map keys are sync names and the values are a list of all stored stats for.
+// that sysnc. Stats are returned storted by Start in descending order.
+func (s *BoltDB) List() (map[string][]Stat, error) {
+	statMap := make(map[string][]Stat)
 
 	if IntValue(s.config.Retention) < 1 {
-		return stats, nil
+		return statMap, nil
 	}
 
 	err := s.db.View(func(tx *bolt.Tx) error {
@@ -143,7 +144,7 @@ func (s *BoltDB) List() ([]Stat, error) {
 					return nil
 				}
 
-				stats = append(stats, stat)
+				statMap[string(name)] = append(statMap[string(name)], stat)
 
 				return nil
 			})
@@ -156,9 +157,11 @@ func (s *BoltDB) List() ([]Stat, error) {
 	}
 
 	// return sorted by start desc
-	sort.Slice(stats, func(i, j int) bool {
-		return j < i
-	})
+	for _, stats := range statMap {
+		sort.Slice(stats, func(i, j int) bool {
+			return j < i
+		})
+	}
 
-	return stats, nil
+	return statMap, nil
 }

@@ -23,7 +23,7 @@ func main() {
 	debug := flag.Bool("debug", false, "Log to STDOUT")
 	flag.Parse()
 
-	re, config := build(*conf, *debug)
+	re, config, db, _ := build(*conf, *debug)
 
 	if *stats {
 		if err := re.Dump(); err != nil {
@@ -40,12 +40,35 @@ func main() {
 	sigc := make(chan os.Signal, 1)
 	signal.Notify(sigc, syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
 
+	// get most recent status for each sync and if any have failed then return an error
 	if config.HTTP != nil {
 		http.Handle("/healthcheck", healthcheck.Handler(
 			healthcheck.WithTimeout(5*time.Second),
 			healthcheck.WithChecker(
-				"ready", healthcheck.CheckerFunc(
+				"live", healthcheck.CheckerFunc(
 					func(ctx context.Context) error {
+						return nil
+					},
+				),
+			),
+		))
+
+		http.Handle("/healthcheck/sync", healthcheck.Handler(
+			healthcheck.WithTimeout(5*time.Second),
+			healthcheck.WithChecker(
+				"syncs", healthcheck.CheckerFunc(
+					func(ctx context.Context) error {
+						statMap, err := db.List()
+						if err != nil {
+							return err
+						}
+
+						for name, stats := range statMap {
+							if len(stats) > 0 && !stats[0].Success {
+								return fmt.Errorf("One more more syncs failed including %s", name)
+							}
+						}
+
 						return nil
 					},
 				),
@@ -64,7 +87,7 @@ func main() {
 			case syscall.SIGHUP:
 				// restart rather then exit on SIGHUP
 				re.Stop()
-				re, _ = build(*conf, *debug)
+				re, _, _, _ = build(*conf, *debug)
 				if err := re.Start(); err != nil {
 					log.Fatal(err)
 				}
@@ -81,7 +104,7 @@ func main() {
 	}
 }
 
-func build(path string, debug bool) (*resync.Resync, *resync.Config) {
+func build(path string, debug bool) (*resync.Resync, *resync.Config, resync.DB, resync.Logger) {
 	config, err := resync.OpenConfig(path)
 	if err != nil {
 		log.Fatal(err)
@@ -105,5 +128,5 @@ func build(path string, debug bool) (*resync.Resync, *resync.Config) {
 
 	notifier := resync.NewEmailNotifier(config, db, logger)
 
-	return resync.New(config, db, logger, notifier), config
+	return resync.New(config, db, logger, notifier), config, db, logger
 }
