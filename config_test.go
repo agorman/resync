@@ -82,6 +82,9 @@ func TestDefaults(t *testing.T) {
 	assert.Equal(t, StringValue(config.LibPath), "/var/lib/resync")
 	assert.Equal(t, IntValue(config.Retention), 7)
 	assert.Len(t, config.Syncs, 2)
+
+	_, err = config.GetTimeLimit("foo")
+	assert.Error(t, err)
 }
 
 func TestMissingCommand(t *testing.T) {
@@ -96,6 +99,28 @@ func TestMissingSchedule(t *testing.T) {
 
 func TestEmpty(t *testing.T) {
 	_, err := OpenConfig("./testdata/empty.yaml")
+	assert.Error(t, err)
+}
+
+func TestEmptySyncs(t *testing.T) {
+	config := &Config{}
+	err := config.validate()
+	assert.Error(t, err)
+}
+
+func TestSyncInvalidTimeLimit(t *testing.T) {
+	config := &Config{
+		Syncs: map[string]*Sync{
+			"invalid time": {
+				RsyncArgs:        String("-a"),
+				RsyncSource:      []string{"/a/b/c"},
+				RsyncDestination: String("/d/e/f"),
+				Schedule:         String("* * * * * *"),
+				TimeLimit:        String("invalid"),
+			},
+		},
+	}
+	err := config.validate()
 	assert.Error(t, err)
 }
 
@@ -152,6 +177,7 @@ func TestLogLevel(t *testing.T) {
 func TestEmail(t *testing.T) {
 	config := &Config{
 		Email: &Email{},
+		HTTP:  &HTTP{},
 		Syncs: map[string]*Sync{
 			"test": {
 				RsyncArgs:        String("-a"),
