@@ -10,7 +10,7 @@ http:
   addr: 0.0.0.0
   port: 4070
 email:
-  host: smtp.me.com
+  host: 1.1.1.1.1
   port: 25
   user: me
   pass: pass

@@ -1,6 +1,7 @@
 package resync
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -11,6 +12,13 @@ func TestMailer(t *testing.T) {
 	assert.Nil(t, err)
 
 	db, err := NewBoltDB(config)
+	assert.Nil(t, err)
+
+	successStat := NewStat("SUCCESS", "Mon Jan 02 03:04:05 PM MST").Finish(nil)
+	errorStat := NewStat("SUCCESS", "Mon Jan 02 03:04:05 PM MST").Finish(errors.New("ERROR"))
+	err = db.Insert(successStat)
+	assert.Nil(t, err)
+	err = db.Insert(errorStat)
 	assert.Nil(t, err)
 
 	logger := NewFSLogger(config)
