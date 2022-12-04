@@ -32,6 +32,11 @@ func TestMailer(t *testing.T) {
 
 	err = emailNotifier.NotifyHistory()
 	assert.Error(t, err)
+
+	// safe because resync isn't running
+	config.Email.HistoryTemplate = String("./testdata/test.tmpl")
+	err = emailNotifier.NotifyHistory()
+	assert.Error(t, err)
 }
 
 func TestSkipMailer(t *testing.T) {
