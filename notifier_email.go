@@ -111,7 +111,6 @@ func (m *EmailNotifier) NotifyHistory() error {
 
 	var emailTmpl *template.Template
 	if m.config.Email.HistoryTemplate != nil {
-		fmt.Println(StringValue((m.config.Email.HistoryTemplate)))
 		emailTmpl, err = template.ParseFiles(StringValue(m.config.Email.HistoryTemplate))
 		if err != nil {
 			return fmt.Errorf("Mailer: failed to parse custom email template %s: %w", StringValue(m.config.Email.HistoryTemplate), err)
