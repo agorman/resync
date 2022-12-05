@@ -180,7 +180,7 @@ The optional HTTP server creates two endpoints.
 
 **/live** - A liveness check that always returns 200. 
 
-**/sync** - A health check that returns 200 if the latest run for each sync was successful and 503 otherwise.
+**/health** - A health check that returns 200 if the latest run for each sync was successful and 503 otherwise.
 
 
 ## Road Map

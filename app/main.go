@@ -53,10 +53,10 @@ func main() {
 			),
 		))
 
-		http.Handle("/sync", healthcheck.Handler(
+		http.Handle("/health", healthcheck.Handler(
 			healthcheck.WithTimeout(5*time.Second),
 			healthcheck.WithChecker(
-				"sync", healthcheck.CheckerFunc(
+				"health", healthcheck.CheckerFunc(
 					func(ctx context.Context) error {
 						statMap, err := db.List()
 						if err != nil {
