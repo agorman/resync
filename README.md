@@ -178,9 +178,9 @@ syncs:
 
 The optional HTTP server creates two endpoints.
 
-**/healthcheck** - A liveness check that always returns 200. 
+**/live** - A liveness check that always returns 200. 
 
-**/healthcheck/sync** - A health check that returns 200 if the latest run for each sync was successful and 503 otherwise.
+**/sync** - A health check that returns 200 if the latest run for each sync was successful and 503 otherwise.
 
 
 ## Road Map

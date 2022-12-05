@@ -42,7 +42,7 @@ func main() {
 
 	// get most recent status for each sync and if any have failed then return an error
 	if config.HTTP != nil {
-		http.Handle("/healthcheck", healthcheck.Handler(
+		http.Handle("/live", healthcheck.Handler(
 			healthcheck.WithTimeout(5*time.Second),
 			healthcheck.WithChecker(
 				"live", healthcheck.CheckerFunc(
@@ -53,10 +53,10 @@ func main() {
 			),
 		))
 
-		http.Handle("/healthcheck/sync", healthcheck.Handler(
+		http.Handle("/sync", healthcheck.Handler(
 			healthcheck.WithTimeout(5*time.Second),
 			healthcheck.WithChecker(
-				"syncs", healthcheck.CheckerFunc(
+				"sync", healthcheck.CheckerFunc(
 					func(ctx context.Context) error {
 						statMap, err := db.List()
 						if err != nil {
