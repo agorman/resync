@@ -36,7 +36,7 @@ func NewBoltDB(config *Config) (*BoltDB, error) {
 		}
 	}
 
-	db, err := bolt.Open(filepath.Join(StringValue(config.LibPath), "resync.db"), 0600, nil)
+	db, err := bolt.Open(filepath.Join(StringValue(config.LibPath), "resync.db"), 0600, &bolt.Options{Timeout: 2 * time.Second})
 	if err != nil {
 		return nil, fmt.Errorf("BoltDB: Failed to open bolt database: %w", err)
 	}
