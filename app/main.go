@@ -23,7 +23,31 @@ func main() {
 	debug := flag.Bool("debug", false, "Log to STDOUT")
 	flag.Parse()
 
-	re, config, db, _ := build(*conf, *debug)
+	config, err := resync.OpenConfig(*conf)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if !*debug {
+		logfile := &lumberjack.Logger{
+			Filename:   filepath.Join(resync.StringValue(config.LogPath), "resync.log"),
+			MaxSize:    10,
+			MaxBackups: 4,
+		}
+		log.SetOutput(logfile)
+	}
+
+	db, err := resync.NewBoltDB(config)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	logger := resync.NewFSLogger(config)
+
+	notifier := resync.NewEmailNotifier(config, db, logger)
+
+	re := resync.New(config, db, logger, notifier)
 
 	if *stats {
 		if err := re.Dump(); err != nil {
@@ -38,7 +62,7 @@ func main() {
 
 	errc := make(chan error, 1)
 	sigc := make(chan os.Signal, 1)
-	signal.Notify(sigc, syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
+	signal.Notify(sigc, syscall.SIGINT, syscall.SIGTERM)
 
 	// get most recent status for each sync and if any have failed then return an error
 	if config.HTTP != nil {
@@ -80,53 +104,12 @@ func main() {
 		}()
 	}
 
-	for {
-		select {
-		case sig := <-sigc:
-			switch sig {
-			case syscall.SIGHUP:
-				// restart rather then exit on SIGHUP
-				re.Stop()
-				re, _, _, _ = build(*conf, *debug)
-				if err := re.Start(); err != nil {
-					log.Fatal(err)
-				}
-			default:
-				fmt.Printf("Got signal %s: stopping\n", sig)
-				re.Stop()
-				return
-			}
-		case err := <-errc:
-			log.Errorf("Run error: %s", err)
-			re.Stop()
-			return
-		}
+	select {
+	case s := <-sigc:
+		log.Warnf("Received signal %s, exiting", s)
+		return
+	case e := <-errc:
+		log.Errorf("Run error: %s", e)
+		return
 	}
-}
-
-func build(path string, debug bool) (*resync.Resync, *resync.Config, resync.DB, resync.Logger) {
-	config, err := resync.OpenConfig(path)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if !debug {
-		logfile := &lumberjack.Logger{
-			Filename:   filepath.Join(resync.StringValue(config.LogPath), "resync.log"),
-			MaxSize:    10,
-			MaxBackups: 4,
-		}
-		log.SetOutput(logfile)
-	}
-
-	db, err := resync.NewBoltDB(config)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	logger := resync.NewFSLogger(config)
-
-	notifier := resync.NewEmailNotifier(config, db, logger)
-
-	return resync.New(config, db, logger, notifier), config, db, logger
 }

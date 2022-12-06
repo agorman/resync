@@ -32,6 +32,7 @@ func TestResync(t *testing.T) {
 
 	db, err := NewBoltDB(config)
 	assert.Nil(t, err)
+	defer db.Close()
 
 	logger := NewFSLogger(config)
 
@@ -78,6 +79,7 @@ func TestStart(t *testing.T) {
 
 	db, err := NewBoltDB(config)
 	assert.Nil(t, err)
+	defer db.Close()
 
 	logger := NewFSLogger(config)
 

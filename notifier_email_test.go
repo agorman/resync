@@ -13,6 +13,7 @@ func TestMailer(t *testing.T) {
 
 	db, err := NewBoltDB(config)
 	assert.Nil(t, err)
+	defer db.Close()
 
 	successStat := NewStat("SUCCESS", "Mon Jan 02 03:04:05 PM MST").Finish(nil)
 	errorStat := NewStat("SUCCESS", "Mon Jan 02 03:04:05 PM MST").Finish(errors.New("ERROR"))
@@ -46,6 +47,7 @@ func TestSkipMailer(t *testing.T) {
 
 	db, err := NewBoltDB(config)
 	assert.Nil(t, err)
+	defer db.Close()
 
 	logger := NewFSLogger(config)
 

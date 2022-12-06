@@ -19,6 +19,7 @@ func TestDB(t *testing.T) {
 
 	db, err := NewBoltDB(config)
 	assert.Nil(t, err)
+	defer db.Close()
 
 	stat1 := NewStat("TEST", "Mon Jan 02 03:04:05 PM MST").Finish(nil)
 	stat2 := NewStat("TEST", "Mon Jan 02 03:04:05 PM MST").Finish(nil)
@@ -79,6 +80,7 @@ func TestDBWithoutRetention(t *testing.T) {
 
 	db, err := NewBoltDB(config)
 	assert.Nil(t, err)
+	defer db.Close()
 
 	stat1 := NewStat("TEST", "Mon Jan 02 03:04:05 PM MST").Finish(nil)
 	stat2 := NewStat("TEST", "Mon Jan 02 03:04:05 PM MST").Finish(nil)

@@ -12,4 +12,7 @@ type DB interface {
 
 	// Insert adds a stat to the database.
 	Insert(Stat) error
+
+	// Closes the connection the database
+	Close() error
 }

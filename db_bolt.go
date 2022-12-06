@@ -165,3 +165,12 @@ func (s *BoltDB) List() (map[string][]Stat, error) {
 
 	return statMap, nil
 }
+
+// Close closes the bolt database file.
+func (s *BoltDB) Close() error {
+	if IntValue(s.config.Retention) < 1 {
+		return nil
+	}
+
+	return s.db.Close()
+}
