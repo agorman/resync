@@ -150,39 +150,101 @@ func (m *EmailNotifier) send(message *gomail.Message) error {
 	return nil
 }
 
-var emailTemplate = `<style type="text/css">
-.tg  {border-collapse:collapse;border-color:#9ABAD9;border-spacing:0;}
-.tg td{background-color:#EBF5FF;border-color:#9ABAD9;border-style:solid;border-width:1px;color:#444;
-    font-family:Arial, sans-serif;font-size:14px;overflow:hidden;padding:10px 5px;word-break:normal;}
-.tg th{background-color:#409cff;border-color:#9ABAD9;border-style:solid;border-width:1px;color:#fff;
-    font-family:Arial, sans-serif;font-size:14px;font-weight:normal;overflow:hidden;padding:10px 5px;word-break:normal;}
-.tg .tg-baqh{text-align:center;vertical-align:top}
-.tg .tg-lqy6{text-align:right;vertical-align:top}
-.tg .tg-0lax{text-align:left;vertical-align:top}
+var emailTemplate = `<html>
+<head>
+
+<style type="text/css">
+.tg {
+  border-collapse:separate;
+  border-spacing:0;
+  border-radius:10px;
+  width: 100%;
+  font-family:Roboto,"Helvetica Neue",sans-serif;
+}
+
+.tg td {
+  color:#444;
+  font-size:14px;
+  overflow:hidden;
+  padding:3px 10px 3px 0px;
+  word-break:normal;
+  border-bottom: 1px solid;
+  border-bottom-color: #BDBDBD;
+  height: 40px;
+}
+
+.tg th {
+  background-color:#424242;
+  color:#FFFFFF;
+  font-family:Roboto,"Helvetica Neue",sans-serif;
+  font-size:12px;
+  font-weight:bold;
+  overflow:hidden;
+  padding:3px 10px 3px 0px;
+  word-break:normal;
+  border:0;
+  height: 60px;
+}
+
+.tg .tg-title {
+  text-align:center;
+  font-size: 14px;
+}
+
+.tg .tg-data {
+  text-align:left;
+}
+
+.tg .tg-header {
+  text-align:left;
+  font-weight: bold;
+  color: #9E9E9E;
+}
+
+.success {
+  color: #2E7D32 !important;
+  font-weight: bold;
+}
+
+.failure {
+  color: #D32F2F !important;
+  font-weight: bold;
+}
 </style>
+
+</head>
+<body>
+
 {{ range $name, $stats := . }}
 <table class="tg">
-	<thead>
-		<tr>
-			<th class="tg-baqh" colspan="6">{{$name}}</th>
-		</tr>
-	</thead>
-	<tbody>
-		<tr>
-			<td class="tg-0pky">Success</td>
-			<td class="tg-0pky">Start</td>
-			<td class="tg-0pky">End</td>
-			<td class="tg-0pky">Duration</td>
-		</tr>
-		{{ range $stats}}
-		<tr>
-			<td class="tg-0pky">{{.Success}}</td>
-			<td class="tg-0pky">{{.Start}}</td>
-			<td class="tg-0pky">{{.End}}</td>
-			<td class="tg-0pky">{{.Duration}}</td>
-		</tr>
-		{{ end}}
-	</tbody>
+        <thead>
+                <tr>
+                        <th class="tg-title" colspan="6">{{$name}}</th>
+                </tr>
+        </thead>
+        <tbody>
+                <tr>
+                        <td class="tg-header">Status</td>
+                        <td class="tg-header">Start</td>
+                        <td class="tg-header">End</td>
+                        <td class="tg-header">Duration</td>
+                </tr>
+                {{ range $stats}}
+                <tr>
+                        {{if .Success}}
+                          <td class="success">Success</td>
+                        {{else}}
+                          <td class="failure">Failed</td>
+                        {{end}}
+                        <td class="tg-data">{{.Start}}</td>
+                        <td class="tg-data">{{.End}}</td>
+                        <td class="tg-data">{{.Duration}}</td>
+                </tr>
+                {{ end}}
+        </tbody>
 </table>
 <br>
-{{ end }}`
+{{ end }}
+
+</body>
+</html>`
