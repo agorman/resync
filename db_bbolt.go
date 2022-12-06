@@ -30,7 +30,7 @@ func NewBoltDB(config *Config) (*BoltDB, error) {
 		}, nil
 	}
 
-	if err := os.Mkdir(StringValue(config.LibPath), 0600); err != nil {
+	if err := os.MkdirAll(StringValue(config.LibPath), 0600); err != nil {
 		if !os.IsExist(err) {
 			return nil, fmt.Errorf("BoltDB: Failed to create resync lib directory: %w", err)
 		}
