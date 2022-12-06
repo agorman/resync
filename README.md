@@ -185,6 +185,7 @@ The optional HTTP server creates two endpoints.
 
 ## Road Map
 
+
 - Docker Image
 - Systemd service file
 - Create rpm
@@ -192,3 +193,9 @@ The optional HTTP server creates two endpoints.
 - More persistence layers
 - More notifiers
 - More logggers
+
+
+## Thanks
+
+
+Jayr Elpedes
