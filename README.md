@@ -69,7 +69,7 @@ seconds_field: false
 time_limit: 5h
 http:
   addr: 127.0.0.1
-  port 4050
+  port: 4050
 email:
   host: smtp.myserver.com
   port: 587
