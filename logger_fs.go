@@ -90,7 +90,7 @@ func (l *FSLogger) Stdout(name string) (io.ReadCloser, error) {
 
 	f, err := os.Open(stdout)
 	if err != nil {
-		return nil, fmt.Errorf("FS Logger: failed to create stdout log for sync %s: %w", name, err)
+		return nil, fmt.Errorf("FS Logger: failed to open stdout log for sync %s: %w", name, err)
 	}
 	return f, nil
 }
@@ -114,7 +114,7 @@ func (l *FSLogger) Stderr(name string) (io.ReadCloser, error) {
 
 	f, err := os.Open(stderr)
 	if err != nil {
-		return nil, fmt.Errorf("FS Logger: failed to create stderr log for sync %s: %w", name, err)
+		return nil, fmt.Errorf("FS Logger: failed to open stderr log for sync %s: %w", name, err)
 	}
 	return f, nil
 }
