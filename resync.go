@@ -78,7 +78,6 @@ func (re *Resync) Start() error {
 				defer func() {
 					if r := recover(); r != nil {
 						log.Errorf("Panic running job %s\n%s", name, debug.Stack())
-						// log.Error(debug.Stack())
 					}
 				}()
 
@@ -101,7 +100,7 @@ func (re *Resync) Start() error {
 			// add recovery here so entire program doesn't crash on panic
 			defer func() {
 				if r := recover(); r != nil {
-					log.Errorf("Panic in scheduled stats email: %s", r)
+					log.Errorf("Panic in scheduled stats email: %s", debug.Stack())
 				}
 			}()
 
@@ -214,9 +213,6 @@ func (re *Resync) sync(name string) error {
 	stat := NewStat(name, StringValue(re.config.TimeFormat))
 	err = cmd.Run()
 	stat = stat.Finish(err)
-
-	stdoutLog.Close()
-	stderrLog.Close()
 
 	if stat.Success {
 		log.Infof("Finished %s after %s", name, stat.Duration)
