@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"runtime/debug"
 	"strings"
 	"text/tabwriter"
 
@@ -70,15 +71,23 @@ func (re *Resync) Start() error {
 	for name, sync := range re.config.Syncs {
 		schedule := StringValue(sync.Schedule)
 
-		// make sure variables used in different goroutine (AddFunc) isn't shadowed
-		err := func(name string) error {
+		// make sure variables used in different goroutine (AddFunc) aren't shadowed
+		err := func(name, schedule string) error {
 			_, err := re.crontab.AddFunc(schedule, func() {
+				// add recovery here so entire program doesn't crash on panic
+				defer func() {
+					if r := recover(); r != nil {
+						log.Errorf("Panic running job %s\n%s", name, debug.Stack())
+						// log.Error(debug.Stack())
+					}
+				}()
+
 				if err := re.sync(name); err != nil {
 					log.Errorf("Error running job %s: %v", name, err)
 				}
 			})
 			return err
-		}(name)
+		}(name, schedule)
 		if err != nil {
 			return err
 		}
@@ -89,6 +98,13 @@ func (re *Resync) Start() error {
 	// setup scheduled stats email
 	if re.config.Email != nil && re.config.Email.HistorySchedule != nil {
 		_, err := re.crontab.AddFunc(StringValue(re.config.Email.HistorySchedule), func() {
+			// add recovery here so entire program doesn't crash on panic
+			defer func() {
+				if r := recover(); r != nil {
+					log.Errorf("Panic in scheduled stats email: %s", r)
+				}
+			}()
+
 			if err := re.notifier.NotifyHistory(); err != nil {
 				log.Error(err)
 			}
@@ -199,11 +215,13 @@ func (re *Resync) sync(name string) error {
 	err = cmd.Run()
 	stat = stat.Finish(err)
 
+	stdoutLog.Close()
+	stderrLog.Close()
+
 	if stat.Success {
 		log.Infof("Finished %s after %s", name, stat.Duration)
 	} else {
 		log.Errorf("Error %s: after %s: %s", name, stat.Duration, err)
-
 	}
 
 	if err != nil && re.config.Email != nil && BoolValue(re.config.Email.OnFailure) {
