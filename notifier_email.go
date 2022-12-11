@@ -57,7 +57,10 @@ func (m *EmailNotifier) Notify(stat Stat) error {
 		}
 
 		_, err = io.Copy(w, stdout)
-		return fmt.Errorf("Mailer: failed to attach stderr log: %w", err)
+		if err != nil {
+			return fmt.Errorf("Mailer: failed to attach stdout log: %w", err)
+		}
+		return nil
 	}))
 
 	message.Attach("stderr.log", gomail.SetCopyFunc(func(w io.Writer) error {
@@ -67,7 +70,10 @@ func (m *EmailNotifier) Notify(stat Stat) error {
 		}
 
 		_, err = io.Copy(w, stderr)
-		return fmt.Errorf("Mailer: failed to attach stderr log: %w", err)
+		if err != nil {
+			return fmt.Errorf("Mailer: failed to attach stderr log: %w", err)
+		}
+		return nil
 	}))
 
 	return m.send(message)
