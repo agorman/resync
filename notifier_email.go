@@ -55,6 +55,7 @@ func (m *EmailNotifier) Notify(stat Stat) error {
 		if err != nil {
 			return fmt.Errorf("Mailer: failed to read stdout log: %w", err)
 		}
+		defer stdout.Close()
 
 		_, err = io.Copy(w, stdout)
 		if err != nil {
@@ -68,6 +69,7 @@ func (m *EmailNotifier) Notify(stat Stat) error {
 		if err != nil {
 			return fmt.Errorf("Mailer: failed to read stderr log: %w", err)
 		}
+		defer stderr.Close()
 
 		_, err = io.Copy(w, stderr)
 		if err != nil {
@@ -107,6 +109,7 @@ func (m *EmailNotifier) NotifyHistory() error {
 		return fmt.Errorf("Mailer: failed to get zip from logger: %w", err)
 	}
 	defer os.Remove(zipFile.Name())
+	defer zipFile.Close()
 	message.Attach(zipFile.Name())
 
 	var emailTmpl *template.Template

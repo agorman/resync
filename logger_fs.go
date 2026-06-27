@@ -49,6 +49,8 @@ func (l *FSLogger) Rotate(name string) (io.WriteCloser, io.WriteCloser, error) {
 		MaxBackups: IntValue(l.config.Retention),
 	}
 	logger.Rotate()
+	// Rotate opens a new file internally; close it so the handle isn't leaked.
+	logger.Close()
 
 	stdoutLog, err := os.Create(stdout)
 	if err != nil {
@@ -62,6 +64,8 @@ func (l *FSLogger) Rotate(name string) (io.WriteCloser, io.WriteCloser, error) {
 		MaxBackups: IntValue(l.config.Retention),
 	}
 	logger.Rotate()
+	// Rotate opens a new file internally; close it so the handle isn't leaked.
+	logger.Close()
 
 	stderrLog, err := os.Create(stderr)
 	if err != nil {

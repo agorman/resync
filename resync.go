@@ -204,6 +204,13 @@ func (re *Resync) sync(name string) error {
 	if err != nil {
 		return err
 	}
+	// Rotate returns nil writers when retention is disabled, so guard the close.
+	if stdoutLog != nil {
+		defer stdoutLog.Close()
+	}
+	if stderrLog != nil {
+		defer stderrLog.Close()
+	}
 
 	cmd.Stdout = stdoutLog
 	cmd.Stderr = stderrLog
